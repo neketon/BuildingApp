@@ -1,12 +1,170 @@
-﻿<Window x:Class="BuildingApp.MainWindow"
+﻿<Window x:Class="BuildingApp.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:BuildingApp"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        xmlns:vm="clr-namespace:BuildingApp.ViewModels"
+        Title="Учет строительных материалов на объекте"
+        Height="720" Width="1280"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F6FA"
+        FontFamily="Segoe UI">
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
 
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ===== Заголовок ===== -->
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="2"
+                   Text="🏗 Учет строительных материалов на объекте"
+                   FontSize="24" FontWeight="Bold" Foreground="#2C3E50"
+                   Margin="0,0,0,15"/>
+
+        <!-- ===== Левая панель: Материалы ===== -->
+        <Border Grid.Row="1" Grid.Column="0"
+                Background="White" CornerRadius="8" Padding="15" Margin="0,0,10,0">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.08"/>
+            </Border.Effect>
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="📦 Материалы на складе"
+                           FontSize="16" FontWeight="SemiBold" Foreground="#34495E"
+                           Margin="0,0,0,10"/>
+
+                <!-- Форма добавления материала -->
+                <Border DockPanel.Dock="Bottom" Background="#F8F9FA"
+                        CornerRadius="5" Padding="10" Margin="0,10,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="70"/>
+                            <ColumnDefinition Width="70"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Padding="6" Margin="0,0,5,0"
+                                 VerticalContentAlignment="Center"
+                                 ToolTip="Название материала"
+                                 Text="{Binding NewMaterialName, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Grid.Column="1" Padding="6" Margin="0,0,5,0"
+                                 VerticalContentAlignment="Center"
+                                 ToolTip="Единица измерения (шт, кг, м3)"
+                                 Text="{Binding NewMaterialUnit, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Grid.Column="2" Padding="6" Margin="0,0,5,0"
+                                 VerticalContentAlignment="Center"
+                                 ToolTip="Минимальный остаток"
+                                 Text="{Binding NewMaterialMinQuantity, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Button Grid.Column="3" Content="+ Материал"
+                                Command="{Binding AddMaterialCommand}"
+                                Padding="12,6" Margin="0,0,5,0"
+                                Background="#27AE60" Foreground="White"
+                                BorderThickness="0" Cursor="Hand"/>
+                        <Button Grid.Column="4" Content="✕ Удалить"
+                                Command="{Binding DeleteMaterialCommand}"
+                                Padding="12,6"
+                                Background="#E74C3C" Foreground="White"
+                                BorderThickness="0" Cursor="Hand"/>
+                    </Grid>
+                </Border>
+
+                <DataGrid ItemsSource="{Binding Materials}"
+                          SelectedItem="{Binding SelectedMaterial}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          CanUserAddRows="False"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          HorizontalGridLinesBrush="#ECF0F1"
+                          AlternatingRowBackground="#FAFBFC"
+                          RowBackground="White"
+                          BorderThickness="0"
+                          FontSize="13">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="40"/>
+                        <DataGridTextColumn Header="Наименование" Binding="{Binding Name}" Width="*"/>
+                        <DataGridTextColumn Header="Ед." Binding="{Binding Unit}" Width="60"/>
+                        <DataGridTextColumn Header="Остаток" Binding="{Binding Quantity}" Width="80"/>
+                        <DataGridTextColumn Header="Мин." Binding="{Binding MinQuantity}" Width="60"/>
+                    </DataGrid.Columns>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsLowStock}" Value="True">
+                                    <Setter Property="Background" Value="#FFF3CD"/>
+                                    <Setter Property="ToolTip" Value="Остаток ниже минимального!"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                </DataGrid>
+            </DockPanel>
+        </Border>
+
+        <!-- ===== Правая панель: Операции ===== -->
+        <Border Grid.Row="1" Grid.Column="1"
+                Background="White" CornerRadius="8" Padding="15" Margin="10,0,0,0">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.08"/>
+            </Border.Effect>
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="📋 Журнал операций"
+                           FontSize="16" FontWeight="SemiBold" Foreground="#34495E"
+                           Margin="0,0,0,5"/>
+                <TextBlock DockPanel.Dock="Top" Text="{Binding SelectedMaterialName}"
+                           FontSize="13" FontStyle="Italic" Foreground="#7F8C8D"
+                           Margin="0,0,0,10"/>
+
+                <!-- Форма новой операции -->
+                <Border DockPanel.Dock="Top" Background="#ECF0F1"
+                        CornerRadius="5" Padding="10" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="Новая операция" FontWeight="SemiBold"
+                                   Foreground="#2C3E50" Margin="0,0,0,6"/>
+                        <ComboBox ItemsSource="{Binding OperationTypes}"
+                                  SelectedItem="{Binding OperationType}"
+                                  Margin="0,0,0,6" Padding="5"/>
+                        <TextBox Padding="6" Margin="0,0,0,6"
+                                 ToolTip="Количество (например 10 или 2,5)"
+                                 Text="{Binding OperationQuantity, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Padding="6" Margin="0,0,0,6"
+                                 ToolTip="Комментарий (необязательно)"
+                                 Text="{Binding OperationComment, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Button Content="➕ Добавить операцию"
+                                Command="{Binding AddOperationCommand}"
+                                Padding="12,6"
+                                Background="#3498DB" Foreground="White"
+                                BorderThickness="0" Cursor="Hand"/>
+                    </StackPanel>
+                </Border>
+
+                <DataGrid ItemsSource="{Binding Operations}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          CanUserAddRows="False"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          HorizontalGridLinesBrush="#ECF0F1"
+                          AlternatingRowBackground="#FAFBFC"
+                          RowBackground="White"
+                          BorderThickness="0"
+                          FontSize="13">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Дата"
+                                            Binding="{Binding OperationDate, StringFormat='dd.MM.yyyy HH:mm'}"
+                                            Width="120"/>
+                        <DataGridTextColumn Header="Тип" Binding="{Binding OperationType}" Width="70"/>
+                        <DataGridTextColumn Header="Кол-во" Binding="{Binding Quantity}" Width="60"/>
+                        <DataGridTextColumn Header="Комментарий" Binding="{Binding Comment}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </Border>
     </Grid>
 </Window>
