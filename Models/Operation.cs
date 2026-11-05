@@ -1,4 +1,4 @@
-﻿namespace BuildingMaterialsApp.Models;
+﻿namespace BuildingApp.Models;
 
 public class Operation
 {

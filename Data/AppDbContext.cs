@@ -1,7 +1,6 @@
-﻿using Azure;
-using BuildingApp.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Windows.Media.Media3D;
+﻿using Microsoft.EntityFrameworkCore;
+using Material = BuildingApp.Models.Material;
+using Operation = BuildingApp.Models.Operation;
 
 namespace BuildingApp.Data;
 
@@ -15,9 +14,8 @@ public class AppDbContext : DbContext
     private const string ConnectionString =
         @"Server=NEKETON;Database=BuildingMaterialsDB;Trusted_Connection=True;TrustServerCertificate=True;";
 
-    public DbSet<Material> Materials => Set<Material>();
+    public DbSet<Models.Material> Materials => Set<Models.Material>();
     public DbSet<Operation> Operations => Set<Operation>();
-
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlServer(ConnectionString);

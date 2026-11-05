@@ -8,6 +8,8 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
+using Material = BuildingApp.Models.Material;
+using Operation = BuildingApp.Models.Operation;
 
 namespace BuildingApp.ViewModels;
 
